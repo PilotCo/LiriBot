@@ -2,9 +2,12 @@
 var Twitter = require('twitter');
 var inquirer = require('inquirer');
 var Spotify = require('node-spotify-api');
+var omdb = require('omdb');
+var request = require('request');
 var keys = require("./keys.js");
 
 var count = 0;
+var count2 = 0;
 //retrieve the user input selection
 var userInput = process.argv[2];
 
@@ -66,4 +69,33 @@ if(userInput === "my-tweets"){
     }
   }
   songQuestion();
+
+}else if(userInput === "movie-this"){
+  //start a function to create a recursive loop
+  var movieQuestion = function(){
+
+    if(count2 < 1){
+      inquirer.prompt([
+        {
+          name: "movie",
+          message: "What movie would you like information for:"
+        }]).then(function(answers) {
+          var movie = answers.movie;
+          request("http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=40e9cece", function(error, response, body) {
+            //console.log(JSON.parse(body));
+          console.log(JSON.parse(body).Title);
+          console.log("This movie came out in " + JSON.parse(body).Year);
+          console.log("The movie's IMDB rating is: " + JSON.parse(body).imdbRating);
+          console.log("Rotten Tomatoes gave it a rating of: " + JSON.parse(body).Ratings[1].Value);
+          console.log("This move was produced in: " + JSON.parse(body).Country);
+          console.log("make sure you understand " + JSON.parse(body).Language + " when watching this movie.");
+          console.log("Plot: " + JSON.parse(body).Plot);
+          console.log("Actors: " + JSON.parse(body).Actors)
+        });
+        count2++;
+        movieQuestion();
+      });
+    }
+  }
+  movieQuestion();
 }
